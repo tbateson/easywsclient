@@ -7,6 +7,7 @@
 #include <assert.h>
 #include <stdio.h>
 #include <string>
+#include <vector>
 
 using easywsclient::WebSocket;
 static WebSocket::pointer ws = NULL;
@@ -30,7 +31,9 @@ int main()
     }
 #endif
 
-    ws = WebSocket::from_url("ws://localhost:8126/foo");
+    std::vector<std::string> subprotocols;
+    subprotocols.push_back("my_subprotocol");
+    ws = WebSocket::from_url("ws://localhost:8126/foo", subprotocols);
     assert(ws);
     ws->send("goodbye");
     ws->send("hello");

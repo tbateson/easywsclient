@@ -119,7 +119,7 @@ class _DummyWebSocket : public easywsclient::WebSocket
     void sendBinary(const std::string& message) { }
     void sendBinary(const std::vector<uint8_t>& message) { }
     void sendPing() { }
-    void close() { } 
+    void close() { }
     readyStateValues getReadyState() const { return CLOSED; }
     void _dispatch(Callback_Imp & callable) { }
     void _dispatchBinary(BytesCallback_Imp& callable) { }
@@ -340,7 +340,7 @@ class _RealWebSocket : public easywsclient::WebSocket
             // We got a whole message, now do something with it:
             if (false) { }
             else if (
-                   ws.opcode == wsheader_type::TEXT_FRAME 
+                   ws.opcode == wsheader_type::TEXT_FRAME
                 || ws.opcode == wsheader_type::BINARY_FRAME
                 || ws.opcode == wsheader_type::CONTINUATION
             ) {
@@ -454,7 +454,7 @@ class _RealWebSocket : public easywsclient::WebSocket
 };
 
 
-easywsclient::WebSocket::pointer from_url(const std::string& url, bool useMask, const std::string& origin) {
+easywsclient::WebSocket::pointer from_url(const std::string& url, bool useMask, const std::vector<std::string>& subprotocols, const std::string& origin) {
     char host[512];
     int port;
     char path[512];
@@ -507,6 +507,17 @@ easywsclient::WebSocket::pointer from_url(const std::string& url, bool useMask, 
             snprintf(line, 1024, "Origin: %s\r\n", origin.c_str()); ::send(sockfd, line, strlen(line), 0);
         }
         snprintf(line, 1024, "Sec-WebSocket-Key: x3JJHMbDL1EzLkh9GBhXDw==\r\n"); ::send(sockfd, line, strlen(line), 0);
+        if (!subprotocols.empty())
+        {
+            std::string protocol;
+            for (int i = 0; i < subprotocols.size(); ++i)
+            {
+                if (i > 0)
+                    protocol.append(", ");
+                protocol.append(subprotocols[i]);
+            }
+            snprintf(line, 1024, "Sec-WebSocket-Protocol: %s\r\n", protocol.c_str()); ::send(sockfd, line, strlen(line), 0);
+        }
         snprintf(line, 1024, "Sec-WebSocket-Version: 13\r\n"); ::send(sockfd, line, strlen(line), 0);
         snprintf(line, 1024, "\r\n"); ::send(sockfd, line, strlen(line), 0);
         for (i = 0; i < 2 || (i < 1023 && line[i-2] != '\r' && line[i-1] != '\n'); ++i) { if (recv(sockfd, line+i, 1, 0) == 0) { return NULL; } }
@@ -544,11 +555,19 @@ WebSocket::pointer WebSocket::create_dummy() {
 
 
 WebSocket::pointer WebSocket::from_url(const std::string& url, const std::string& origin) {
-    return ::from_url(url, true, origin);
+    return ::from_url(url, true, std::vector<std::string>(), origin);
+}
+
+WebSocket::pointer WebSocket::from_url(const std::string& url, const std::vector<std::string>& subprotocols, const std::string& origin) {
+    return ::from_url(url, true, subprotocols, origin);
 }
 
 WebSocket::pointer WebSocket::from_url_no_mask(const std::string& url, const std::string& origin) {
-    return ::from_url(url, false, origin);
+    return ::from_url(url, false, std::vector<std::string>(), origin);
+}
+
+WebSocket::pointer WebSocket::from_url_no_mask(const std::string& url, const std::vector<std::string>& subprotocols, const std::string& origin) {
+    return ::from_url(url, false, subprotocols, origin);
 }
 
 

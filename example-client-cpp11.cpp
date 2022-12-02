@@ -10,6 +10,7 @@
 #include <stdio.h>
 #include <string>
 #include <memory>
+#include <vector>
 
 int main()
 {
@@ -25,7 +26,9 @@ int main()
     }
 #endif
 
-    std::unique_ptr<WebSocket> ws(WebSocket::from_url("ws://localhost:8126/foo"));
+    std::vector<std::string> subprotocols;
+    subprotocols.push_back("my_subprotocol");
+    std::unique_ptr<WebSocket> ws(WebSocket::from_url("ws://localhost:8126/foo", subprotocols));
     assert(ws);
     ws->send("goodbye");
     ws->send("hello");
