@@ -210,8 +210,7 @@ class _RealWebSocket : public easywsclient::WebSocket
             ssize_t ret;
             rxbuf.resize(N + 1500);
             ret = recv(sockfd, (char*)&rxbuf[0] + N, 1500, 0);
-            if (false) { }
-            else if (ret < 0 && (socketerrno == SOCKET_EWOULDBLOCK || socketerrno == SOCKET_EAGAIN_EINPROGRESS)) {
+            if (ret < 0 && (socketerrno == SOCKET_EWOULDBLOCK || socketerrno == SOCKET_EAGAIN_EINPROGRESS)) {
                 rxbuf.resize(N);
                 break;
             }
@@ -228,8 +227,7 @@ class _RealWebSocket : public easywsclient::WebSocket
         }
         while (txbuf.size()) {
             int ret = ::send(sockfd, (char*)&txbuf[0], txbuf.size(), 0);
-            if (false) { } // ??
-            else if (ret < 0 && (socketerrno == SOCKET_EWOULDBLOCK || socketerrno == SOCKET_EAGAIN_EINPROGRESS)) {
+            if (ret < 0 && (socketerrno == SOCKET_EWOULDBLOCK || socketerrno == SOCKET_EAGAIN_EINPROGRESS)) {
                 break;
             }
             else if (ret <= 0) {
@@ -338,9 +336,7 @@ class _RealWebSocket : public easywsclient::WebSocket
             if (rxbuf.size() < ws.header_size+ws.N) { return; /* Need: ws.header_size+ws.N - rxbuf.size() */ }
 
             // We got a whole message, now do something with it:
-            if (false) { }
-            else if (
-                   ws.opcode == wsheader_type::TEXT_FRAME
+            if (ws.opcode == wsheader_type::TEXT_FRAME
                 || ws.opcode == wsheader_type::BINARY_FRAME
                 || ws.opcode == wsheader_type::CONTINUATION
             ) {
@@ -394,8 +390,7 @@ class _RealWebSocket : public easywsclient::WebSocket
         std::vector<uint8_t> header;
         header.assign(2 + (message_size >= 126 ? 2 : 0) + (message_size >= 65536 ? 6 : 0) + (useMask ? 4 : 0), 0);
         header[0] = 0x80 | type;
-        if (false) { }
-        else if (message_size < 126) {
+        if (message_size < 126) {
             header[1] = (message_size & 0xff) | (useMask ? 0x80 : 0);
             if (useMask) {
                 header[2] = masking_key[0];
@@ -466,8 +461,7 @@ easywsclient::WebSocket::pointer from_url(const std::string& url, bool useMask, 
       fprintf(stderr, "ERROR: origin size limit exceeded: %s\n", origin.c_str());
       return NULL;
     }
-    if (false) { }
-    else if (sscanf(url.c_str(), "ws://%[^:/]:%d/%s", host, &port, path) == 3) {
+    if (sscanf(url.c_str(), "ws://%[^:/]:%d/%s", host, &port, path) == 3) {
     }
     else if (sscanf(url.c_str(), "ws://%[^:/]/%s", host, path) == 2) {
         port = 80;
@@ -510,9 +504,9 @@ easywsclient::WebSocket::pointer from_url(const std::string& url, bool useMask, 
         if (!subprotocols.empty())
         {
             std::string protocol;
-            for (int i = 0; i < subprotocols.size(); ++i)
+            for (std::vector<std::string>::size_type i = 0; i < subprotocols.size(); ++i)
             {
-                if (i > 0)
+                if (i)
                     protocol.append(", ");
                 protocol.append(subprotocols[i]);
             }
